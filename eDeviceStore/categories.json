@@ -1,0 +1,42 @@
+[
+  {
+    "category": "Smartphone",
+    "attributes": {
+      "operatingSystem": "string",
+      "storageSizeInGB": "number",
+      "ramSizeInGB": "number",
+      "batteryCapacityInmAh": "number"
+    }
+  },
+  {
+    "category": "Smartwatch",
+    "attributes": {
+      "hasHeartMonitor": "boolean",
+      "communication": "string",
+      "compatibilityPlatform": "string",
+      "hasGps": "boolean"
+    }
+  },
+  {
+    "category": "Monitor",
+    "attributes": {
+      "refreshRateHz": "number",
+      "resolution": "string",
+    }
+  },
+  {
+    "category": "Keyboard",
+    "attributes": {
+      "type": "string",
+      "isWireless": "boolean",
+      "connectionType": "string"
+    }
+  },
+  {
+    "category": "Headphones",
+    "attributes": {
+      "type" : "string",
+      "soundReduction": "boolean"
+    }
+  }
+]
