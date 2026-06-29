@@ -5,10 +5,14 @@ import com.example.edevicestore.db.JsonFileStorage;
 import com.example.edevicestore.models.ProductCategoryConfig;
 import com.example.edevicestore.repositories.ProductCategoryConfigRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+@Repository
 
 public class ProductCategoryConfigJsonRepository implements ProductCategoryConfigRepository {
     private JsonFileStorage<ProductCategoryConfig> storage;

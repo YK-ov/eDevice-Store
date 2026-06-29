@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
+@Transactional
 
 public class BasketService implements BasketServiceInterface {
     private final UserRepository userRepository;
@@ -38,10 +40,6 @@ public class BasketService implements BasketServiceInterface {
 
         List<BasketItem> itemsInBasket = basketItemRepository.findByUserId(userId);
 
-        if (itemsInBasket.isEmpty()) {
-            throw new IllegalArgumentException("Uzytkownik o id " + userId + " ma pusty kosz");
-        }
-
         return Basket.builder().user(foundUser.get()).addedProducts(itemsInBasket).build();
     }
 
@@ -62,12 +60,18 @@ public class BasketService implements BasketServiceInterface {
         Optional<BasketItem> basketItem = basketItemRepository.findByUserIdAndProductId(userId, productId);
 
         if (basketItem.isEmpty()) {
-            User user = foundUser.get();
-            Product product = foundProduct.get();
-
-            BasketItem newBasketItem = BasketItem.builder().user(user).product(product).quantity(1).build();
-
+            BasketItem newBasketItem = BasketItem.builder()
+                    .id(UUID.randomUUID().toString())
+                    .user(foundUser.get())
+                    .product(foundProduct.get())
+                    .quantity(1)
+                    .build();
             basketItemRepository.save(newBasketItem);
+        }
+        else {
+            BasketItem existingItem = basketItem.get();
+            existingItem.setQuantity(existingItem.getQuantity() + 1);
+            basketItemRepository.save(existingItem);
         }
     }
 
@@ -91,7 +95,7 @@ public class BasketService implements BasketServiceInterface {
             throw new IllegalStateException("Produkt " + productId + " nie znaleziono w koszu");
         }
 
-        if (basketItem.get().getQuantity() > 0){
+        if (basketItem.get().getQuantity() > 1){
             basketItem.get().setQuantity(basketItem.get().getQuantity() - 1);
             basketItemRepository.save(basketItem.get());
         }

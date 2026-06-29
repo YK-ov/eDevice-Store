@@ -29,6 +29,10 @@ public class ProductValidator {
         requireNonBlank(product.getDescription(), "Opis produktu jest wymagany");
         requireNonBlank(product.getCategory(), "Kategoria produktu jest wymagana");
 
+        if (product.getPrice() == null){
+            throw new IllegalArgumentException("Cena produktu jest wymagana");
+        }
+
         if (product.getYear() <= 0){
             throw new IllegalArgumentException("Rok musi byc dodatni");
         }

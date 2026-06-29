@@ -6,12 +6,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -23,11 +25,10 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", getUserRole(userDetails));
+        claims.put("roles", getUserRoles(userDetails));
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expirationMs);
         return Jwts.builder()
-                .header().type("JWT").and()
                 .claims().add(claims).and()
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
@@ -36,12 +37,10 @@ public class JwtUtil {
                 .compact();
     }
 
-    private String getUserRole(UserDetails userDetails) {
-        if (userDetails.getAuthorities() != null && !userDetails.getAuthorities().isEmpty()){
-            return userDetails.getAuthorities().iterator().next().getAuthority();
-        }
-
-        return "ROLE_USER";
+    private List<String> getUserRoles(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

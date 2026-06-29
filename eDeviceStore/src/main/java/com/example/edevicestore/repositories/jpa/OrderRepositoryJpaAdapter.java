@@ -53,4 +53,9 @@ public class OrderRepositoryJpaAdapter implements OrderRepository {
         return delegate.findByUserId(userId);
     }
 
+    @Override
+    public void deleteAll(List<Order> orders) {
+        delegate.deleteAll(orders);
+    }
+
 }

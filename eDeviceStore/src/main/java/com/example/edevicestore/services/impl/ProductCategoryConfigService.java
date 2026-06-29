@@ -24,7 +24,7 @@ public class ProductCategoryConfigService {
 
     @Transactional(readOnly = true)
     public ProductCategoryConfig getByCategory(String category){
-        return configRepository.findByCategory(category).orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria pojazdu: " + category));
+        return configRepository.findByCategory(category).orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria produktu: " + category));
     }
 
     @Transactional(readOnly = true)

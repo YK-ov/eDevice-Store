@@ -5,6 +5,7 @@ import com.example.edevicestore.repositories.OrderRepository;
 import com.example.edevicestore.repositories.ProductRepository;
 import com.example.edevicestore.repositories.UserRepository;
 import com.example.edevicestore.services.OrderServiceInterface;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+@Service
+@Transactional
 
 public class OrderService implements OrderServiceInterface {
     private final OrderRepository orderRepository;
@@ -58,6 +62,9 @@ public class OrderService implements OrderServiceInterface {
 
             order.getItems().add(orderItem);
 
+            product.setQuantity(product.getQuantity() - usersBasketItems.get(i).getQuantity());
+            productRepository.save(product);
+
             BigDecimal currentPrice = usersBasketItems.get(i).getProduct().getPrice().multiply(BigDecimal.valueOf(usersBasketItems.get(i).getQuantity()));
 
             totalPrice = totalPrice.add(currentPrice);
@@ -73,6 +80,7 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
+    @Transactional
     public Order orderSingleProduct(String userId, String productId) {
         Optional<User> foundUser = userRepository.findById(userId);
         Optional<Product> foundProduct = productRepository.findById(productId);
@@ -88,8 +96,14 @@ public class OrderService implements OrderServiceInterface {
         Order order = Order.builder().id(UUID.randomUUID().toString()).user(foundUser.get()).status(OrderStatus.pending).
                 purchaseDate(LocalDateTime.now().toString()).items(new ArrayList<>()).build();
 
-        OrderItem orderItem = OrderItem.builder().id(UUID.randomUUID().toString()).order(order).product(foundProduct)
+        OrderItem orderItem = OrderItem.builder().id(UUID.randomUUID().toString()).order(order).product(foundProduct.get())
                 .quantity(1).purchasePrice(foundProduct.get().getPrice()).build();
+
+        order.getItems().add(orderItem);
+
+        Product product = foundProduct.get();
+        product.setQuantity(product.getQuantity() - 1);
+        productRepository.save(product);
 
         order.setTotalPrice(foundProduct.get().getPrice());
 
@@ -98,17 +112,33 @@ public class OrderService implements OrderServiceInterface {
 
     @Override
     public List<Order> getOrderByUserId(String userId) {
-        return List.of();
+        Optional<User> foundUser = userRepository.findById(userId);
+
+        if (foundUser.isEmpty()) {
+            throw new IllegalArgumentException("Uzytkownika o id " + userId + " nie znaleziono w systemie");
+        }
+
+        return orderRepository.findByUserId(userId);
     }
 
     @Override
+    @Transactional
     public Order updateOrderStatus(String orderId, OrderStatus status) {
-        return null;
+        Optional<Order> foundOrder = orderRepository.findById(orderId);
+
+        if (foundOrder.isEmpty()) {
+            throw new IllegalArgumentException("Zamowienia o id " + orderId + " nie znaleziono w systemie");
+        }
+
+        foundOrder.get().setStatus(status);
+        orderRepository.save(foundOrder.get());
+
+        return foundOrder.get();
     }
 
     @Override
     public List<Order> getAllOrders() {
-        return List.of();
+        return orderRepository.findAll();
     }
 
     @Override

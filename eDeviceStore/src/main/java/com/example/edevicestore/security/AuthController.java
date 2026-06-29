@@ -2,6 +2,8 @@ package com.example.edevicestore.security;
 
 import com.example.edevicestore.dto.LoginRequest;
 import com.example.edevicestore.dto.LoginResponse;
+import com.example.edevicestore.dto.RegisterRequest;
+import com.example.edevicestore.services.impl.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserService userService;
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest loginRequest) {
@@ -38,4 +42,21 @@ public class AuthController {
         String token = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new LoginResponse(token));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(
+            @RequestBody RegisterRequest request) {
+        try {
+            userService.register(request.name(), request.surname(), request.email(), request.login(), request.password());
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Registered successfully");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ex.getMessage());
+        }
+    }
+
+
 }

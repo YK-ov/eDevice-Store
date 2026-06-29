@@ -1,0 +1,20 @@
+spring:
+  main:
+    banner-mode: off
+
+server:
+  port: 8081
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
+stripe:
+  api-key: ${STRIPE_API_KEY}
+  webhook-secret: ${WEBHOOK_SECRET}
+  success-url: ${STRIPE_SUCCESS_URL:http://localhost:${PORT:8081}/api/payments/success?session_id={CHECKOUT_SESSION_ID}}
+  cancel-url: ${STRIPE_CANCEL_URL:http://localhost:${PORT:8081}/api/payments/cancel}
+
+project:
+  json:
+    categories-file: "categories.json"

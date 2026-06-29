@@ -21,7 +21,7 @@
     "category": "Monitor",
     "attributes": {
       "refreshRateHz": "number",
-      "resolution": "string",
+      "resolution": "string"
     }
   },
   {

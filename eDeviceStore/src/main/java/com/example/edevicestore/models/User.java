@@ -3,6 +3,9 @@ package com.example.edevicestore.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,9 +35,13 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
 
     public User copy(){
         return User.builder()
@@ -44,7 +51,7 @@ public class User {
                 .login(login)
                 .passwordHash(passwordHash)
                 .email(email)
-                .role(role)
+                .roles(roles == null ? new HashSet<>() : new HashSet<>(roles))
                 .build();
     }
 
